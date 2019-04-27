@@ -4,6 +4,8 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.impute import SimpleImputer
 from sklearn.svm import SVC, LinearSVC
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn import metrics
+from sklearn.metrics import roc_auc_score
 import numpy as np
 import pandas as pd
 import comparison as comp
@@ -68,17 +70,20 @@ for ds_name, X, y in datasets:
   for clf_name, params, pipe in pipes:
     best_params = GridSearchCV(pipe, params, cv=skf).fit(X, y).best_params_
     pipe.set_params(**best_params)
-    scores = cross_val_score(pipe, X, y, cv=skf, scoring='accuracy')
+    scores = cross_val_score(pipe, X, y, cv=skf, scoring='roc_auc')
     data.setdefault(clf_name, {})[ds_name] = ((scores.mean(), scores.std()))
-    print(ds_name)#, clf_name, scores.mean(), scores.std())
+    #roc_score = roc_auc_score(y, scores)
+    
+    print(ds_name, clf_name, scores.mean(), scores.std())
 
 comp.load_data(data)
+"""
 if (comp.friedman()):
   print('H0 was rejected')
   print(comp.nemenyi())
 else:
   print('H0 was not rejected')
-  
+"""  
 visual.load_data(data)
 visual.to_csv('benchmark.csv')
 visual.to_chart('benchmark.png')
