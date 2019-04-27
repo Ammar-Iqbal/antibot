@@ -35,7 +35,11 @@ for v in range(QTD_TOTAL_JOGADORES):
 np.random.seed(255)
 
 #Distribuição normal para numero de itens coletados
-qty_pick_bot = np.absolute(np.round(np.random.normal(20, 4, QTD_BOTS)))
+# 50% são bots óbvios
+qty_pick_bot = np.round(np.random.normal(20, 4, int(QTD_BOTS/2)))
+# Os outros 50% jogam com essa opção desligada para não levantar suspeitas
+tmp_qtypickbot = np.round(np.random.normal(8, 4,  int(QTD_BOTS/2)))
+qty_pick_bot = np.absolute(np.concatenate((tmp_qtypickbot, qty_pick_bot)))
 qty_pick_regular = np.absolute(np.round(np.random.normal(8, 4, QTD_REGULAR)))
 
 
@@ -46,9 +50,13 @@ print(qty_pick_regular)
 '''
 
 #Distribuição normal para média do tempo de reacao entre abrir o corpo do monstro e pegar o item
-reaction_pick_bot = np.absolute(np.round(np.random.normal(600, 50, QTD_BOTS)))
-#Bots podem inserir um limite mínimo para a ação começar, então vamos adotar metade dos dados com um intervalo de 500 milisegundos
-reaction_pick_bot =  np.concatenate(((reaction_pick_bot[:int(QTD_BOTS/2)] + 500), reaction_pick_bot[int(QTD_BOTS/2):]))
+# 50% são bots óbvios
+reaction_pick_bot = np.round(np.random.normal(600, 50, int(QTD_BOTS/2)))
+# Os outros 50% jogam com essa opção desligada para não levantar suspeitas
+tmp_reactionpickbot = np.round(np.random.normal(1500, 250, int(QTD_BOTS/2)))
+reaction_pick_bot = np.absolute(np.concatenate((tmp_reactionpickbot, reaction_pick_bot)))
+#Bots podem inserir um limite mínimo para a ação começar, então vamos adotar 1/2 dos dados que usam bot óbvio com um intervalo de +500 milisegundos
+reaction_pick_bot =  np.concatenate(((reaction_pick_bot[int(QTD_BOTS/4):], reaction_pick_bot[:int(QTD_BOTS/4)] + 500)))
 reaction_pick_regular = np.absolute(np.round(np.random.normal(1500, 250, QTD_REGULAR)))
 
 '''
@@ -58,8 +66,12 @@ print(reaction_pick_regular)
 '''
 
 #Distribuição normal para consistência do tempo de reacao entre abrir o corpo do monstro e pegar o item
-consistency_pick_bot = np.absolute(np.round(np.random.normal(100, 25, QTD_BOTS)))
-consistency_pick_regular = np.absolute(np.round(np.random.normal(2500, 1000, QTD_REGULAR)))
+# 50% são bots óbvios
+consistency_pick_bot = np.round(np.random.normal(100, 25, int(QTD_BOTS/2)))
+# Os outros 50% jogam com essa opção desligada para não levantar suspeitas
+tmp_reactionpickbot = np.round(np.random.normal(2500, 800, int(QTD_BOTS/2)))
+consistency_pick_bot = np.absolute(np.concatenate((tmp_reactionpickbot, consistency_pick_bot)))
+consistency_pick_regular = np.absolute(np.round(np.random.normal(2500, 800, QTD_REGULAR)))
 
 '''
 print("Consistency:")
@@ -68,9 +80,17 @@ print(consistency_pick_regular)
 '''
 
 #Distribuição normal para porcentagem da vida ao executar uma cura
-avg_percent_life_bot = np.absolute(np.round(np.random.normal(60, 2, QTD_BOTS), 1))
-#Bots podem inserir um limite mínimo para a ação começar, então vamos adotar metade dos dados com um limite de 80% da vida
-avg_percent_life_bot =  np.concatenate(((avg_percent_life_bot[:int(QTD_BOTS/2)] + 18), avg_percent_life_bot[int(QTD_BOTS/2):]))
+# 50% são bots óbvios
+avg_percent_life_bot = np.round(np.random.normal(60, 2, int(QTD_BOTS/2)), 1)
+# Os outros 50% jogam com essa opção desligada para não levantar suspeitas
+# Detalhe Importante:
+# Caso o jogador esteja com a opção desligada, todos os outros atributos que são de alguma forma derivados desse aqui devem ser afetados também
+# Além disso a ordem deve ser diferente dos atributos relacionados a coleta, pois o jogador pode estar com a opção de coleta desativada mas não a de cura (e vice versa)
+# Dessa forma representamos os dados reais com muito mais precisão.
+tmp_percentlifebot = np.round(np.random.normal(50, 8, int(QTD_BOTS/2)), 1)
+avg_percent_life_bot = np.absolute(np.concatenate((avg_percent_life_bot, tmp_percentlifebot)))
+#Bots podem inserir um limite mínimo para a ação começar, então vamos adotar 1/2 dos dados que usam bot óbvio com um limite de 80% da vida
+avg_percent_life_bot =  np.concatenate(((avg_percent_life_bot[:int(QTD_BOTS/4)] + 18), avg_percent_life_bot[int(QTD_BOTS/4):]))
 avg_percent_life_regular = np.absolute(np.round(np.random.normal(50, 8, QTD_REGULAR), 1))
 
 '''
@@ -79,10 +99,15 @@ print(avg_percent_life_bot)
 print(avg_percent_life_regular)
 '''
 
+
 #Distribuição normal para média do tempo de reacao entre tomar um dano e se curar com alguma magia, poção ou runa
-reaction_heal_bot = np.absolute(np.round(np.random.normal(600, 50, QTD_BOTS)))
-#Bots podem inserir um limite mínimo para a ação começar, então vamos adotar metade dos dados com um intervalo de +300 milisegundos
-reaction_heal_bot =  np.concatenate(((reaction_heal_bot[:int(QTD_BOTS/2)] + 300), reaction_heal_bot[int(QTD_BOTS/2):]))
+# 50% são bots óbvios
+reaction_heal_bot = np.round(np.random.normal(600, 50, int(QTD_BOTS/2)))
+# Os outros 50% jogam com essa opção desligada para não levantar suspeitas
+tmp_reactionhealbot = np.round(np.random.normal(2500, 450, int(QTD_BOTS/2)))
+reaction_heal_bot = np.absolute(np.concatenate((reaction_heal_bot, tmp_reactionhealbot)))
+#Bots podem inserir um limite mínimo para a ação começar, então vamos adotar 1/2 dos dados que usam bot óbvio com um intervalo de +300 milisegundos
+reaction_heal_bot =  np.concatenate(((reaction_heal_bot[:int(QTD_BOTS/4)] + 300), reaction_heal_bot[int(QTD_BOTS/4):]))
 reaction_heal_regular = np.absolute(np.round(np.random.normal(2500, 450, QTD_REGULAR)))
 
 '''
@@ -92,7 +117,11 @@ print(reaction_heal_regular)
 '''
 
 #Distribuição normal para consistência do tempo de reacao entre tomar um dano e se curar com alguma magia, poção ou runa
-consistency_heal_bot = np.absolute(np.round(np.random.normal(350, 50, QTD_BOTS)))
+# 50% são bots óbvios
+consistency_heal_bot = np.round(np.random.normal(350, 50, int(QTD_BOTS/2)))
+# Os outros 50% jogam com essa opção desligada para não levantar suspeitas
+tmp_consistencyhealbot =  400 + np.round(np.random.normal(1500, 500, int(QTD_BOTS/2)))
+consistency_heal_bot = np.absolute(np.concatenate((consistency_heal_bot, tmp_consistencyhealbot)))
 consistency_heal_regular = 400 + np.absolute(np.round(np.random.normal(1500, 500, QTD_REGULAR)))
 
 '''
@@ -102,8 +131,18 @@ print(consistency_heal_regular)
 '''
 
 #Distribuição normal para quantidade de monstros mortos
-qty_killed_bot = np.absolute(np.round(np.random.normal(20, 5, QTD_BOTS)))
-qty_killed_regular = np.absolute(np.round(np.random.normal(10, 4, QTD_REGULAR)))
+# 50% são bots óbvios
+qty_killed_bot = np.round(np.random.normal(20, 5, int(QTD_BOTS/2)))
+# Os outros 50% jogam sem auto-cura e tem mais dificuldade de matar monstros mais rapidamente
+tmp_qtykilledbot =  np.round(np.random.normal(12, 4, int(QTD_BOTS/2)))
+qty_killed_bot = np.absolute(np.concatenate((qty_killed_bot, tmp_qtykilledbot)))
+# Só que alguns jogadores regulares conseguem atingir level maximo e ai passam a matar mesmo os bixos mais fortes com muita facilidade.
+# E ainda temos jogadores que vão em monstros bem mais fracos para não ter que gastar tanta poção e ganhar experiência por quantidade.
+qty_killed_regular = np.round(np.random.normal(10, 4, int(QTD_REGULAR/2)))
+tmp_qntykilledregular = np.round(np.random.normal(20, 5, int(QTD_REGULAR/2)))
+qty_killed_regular = np.absolute(np.concatenate((qty_killed_regular, tmp_qntykilledregular)))
+# Resumo: Esse atributo possui muito ruído
+
 
 '''
 print("Quantity monsters killed:")
