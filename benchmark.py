@@ -1,6 +1,7 @@
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_val_score
 from sklearn.pipeline import Pipeline, make_pipeline
-from sklearn.preprocessing import Imputer, MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.impute import SimpleImputer
 from sklearn.svm import SVC, LinearSVC
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
@@ -24,7 +25,7 @@ def load_antibot():
     'isbot']
     
   # load dataset
-  ds = pd.read_table('antibot.data', sep=',', header=None, names=cols)
+  ds = pd.read_csv('antibot.data', sep=',', header=None, names=cols)
   
   X = ds.iloc[:, :-1]
   y = ds.iloc[:, -1]
@@ -40,9 +41,9 @@ datasets.append(load_antibot())
 linear_svc_params = {'linearsvc__C': np.linspace(0.5, 5., 10)}
 knn_params = {'kneighborsclassifier__n_neighbors': [1,3,5,7,9,11,13,15,17,19,21]}
 svc_linear_params = {'svc__kernel': ['linear'], 'svc__C': np.linspace(0.5, 5., 10)}
-svc_poly_params = {'svc__kernel': ['poly'], 'svc__C': np.linspace(0.5, 5., 10), 'svc__degree': range(0, 5)}
-svc_rbf_params = {'svc__kernel': ['rbf'], 'svc__C': np.linspace(0.5, 5., 10)}
-svc_sigmoid_params = {'svc__kernel': ['sigmoid'], 'svc__C': np.linspace(0.5, 5., 10)}
+svc_poly_params = {'svc__kernel': ['poly'], 'svc__C': np.linspace(0.5, 5., 10), 'svc__degree': range(0, 5), 'svc__gamma': ['scale']}
+svc_rbf_params = {'svc__kernel': ['rbf'], 'svc__C': np.linspace(0.5, 5., 10), 'svc__gamma': ['scale']}
+svc_sigmoid_params = {'svc__kernel': ['sigmoid'], 'svc__C': np.linspace(0.5, 5., 10), 'svc__gamma': ['scale']}
 
 # configure classifier parameters (worst but with best K)
 #linear_svc_params = {}
@@ -53,12 +54,12 @@ svc_sigmoid_params = {'svc__kernel': ['sigmoid'], 'svc__C': np.linspace(0.5, 5.,
 #svc_sigmoid_params = {'svc__kernel': ['sigmoid']}
 
 pipes = []
-pipes.append(('linear-svc', linear_svc_params, make_pipeline(Imputer(), MinMaxScaler(), LinearSVC())))
-pipes.append(('knn', knn_params, make_pipeline(Imputer(), MinMaxScaler(), KNeighborsClassifier())))
-pipes.append(('svc-linear', svc_linear_params, make_pipeline(Imputer(), MinMaxScaler(), SVC())))
-pipes.append(('svc-poly', svc_poly_params, make_pipeline(Imputer(), MinMaxScaler(), SVC())))
-pipes.append(('svc-rbf', svc_rbf_params, make_pipeline(Imputer(), MinMaxScaler(), SVC())))
-pipes.append(('svc-sigmoid', svc_sigmoid_params, make_pipeline(Imputer(), MinMaxScaler(), SVC())))
+pipes.append(('linear-svc', linear_svc_params, make_pipeline(SimpleImputer(), MinMaxScaler(), LinearSVC())))
+pipes.append(('knn', knn_params, make_pipeline(SimpleImputer(), MinMaxScaler(), KNeighborsClassifier())))
+pipes.append(('svc-linear', svc_linear_params, make_pipeline(SimpleImputer(), MinMaxScaler(), SVC())))
+pipes.append(('svc-poly', svc_poly_params, make_pipeline(SimpleImputer(), MinMaxScaler(), SVC())))
+pipes.append(('svc-rbf', svc_rbf_params, make_pipeline(SimpleImputer(), MinMaxScaler(), SVC())))
+pipes.append(('svc-sigmoid', svc_sigmoid_params, make_pipeline(SimpleImputer(), MinMaxScaler(), SVC())))
 
 data = {}
 for ds_name, X, y in datasets:
