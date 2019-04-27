@@ -15,8 +15,8 @@ df = pd.DataFrame()
 
 def load_data(raw):
   data, index = {}, set([])
-  for clf_name, ds_scores in raw.iteritems():
-    for ds_name, ds_score in ds_scores.iteritems():
+  for clf_name, ds_scores in raw.items():
+    for ds_name, ds_score in ds_scores.items():
       data.setdefault(clf_name, []).append(ds_score[0])
       index.add(ds_name)
   global df
