@@ -4,13 +4,36 @@ from sklearn.preprocessing import Imputer, MinMaxScaler
 from sklearn.svm import SVC, LinearSVC
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
-import repository as repo
+import pandas as pd
 import comparison as comp
 import visualization as visual
 
+#declaring the function to load the data from CSV
+def load_antibot():
+  # attribute information
+  cols = [
+    # preditor da classe (bot = 1, não bot = 0)
+    'qty_pick_bot',
+    'reaction_pick_bot',
+    'consistency_pick_bot',
+    'avg_percent_life_bot',
+    'reaction_heal_bot',
+    'consistency_heal_bot',
+    'qty_killed_bot',
+    'avg_foodtime_bot',
+    'isbot']
+    
+  # load dataset
+  ds = pd.read_table('antibot.data', sep=',', header=None, names=cols)
+  
+  X = ds.iloc[:, :-1]
+  y = ds.iloc[:, -1]
+  
+  return ('antibot', X, y)
+
 # load datasets
 datasets = []
-datasets.append(repo.load_antibot())
+datasets.append(load_antibot())
 
 
 # configure classifier parameters (best)
@@ -46,14 +69,14 @@ for ds_name, X, y in datasets:
     pipe.set_params(**best_params)
     scores = cross_val_score(pipe, X, y, cv=skf, scoring='accuracy')
     data.setdefault(clf_name, {})[ds_name] = ((scores.mean(), scores.std()))
-    print ds_name, clf_name, scores.mean(), scores.std()
+    print(ds_name)#, clf_name, scores.mean(), scores.std())
 
 comp.load_data(data)
 if (comp.friedman()):
-  print 'H0 was rejected'
-  print comp.nemenyi()
+  print('H0 was rejected')
+  print(comp.nemenyi())
 else:
-  print 'H0 was not rejected'
+  print('H0 was not rejected')
   
 visual.load_data(data)
 visual.to_csv('benchmark.csv')
