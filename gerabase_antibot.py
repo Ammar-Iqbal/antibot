@@ -69,8 +69,8 @@ print(reaction_pick_regular)
 # 50% são bots óbvios
 consistency_pick_bot = np.round(np.random.normal(100, 25, int(QTD_BOTS/2)))
 # Os outros 50% jogam com essa opção desligada para não levantar suspeitas
-tmp_reactionpickbot = np.round(np.random.normal(2500, 800, int(QTD_BOTS/2)))
-consistency_pick_bot = np.absolute(np.concatenate((tmp_reactionpickbot, consistency_pick_bot)))
+tmp_consistencypickbot = np.round(np.random.normal(2500, 800, int(QTD_BOTS/2)))
+consistency_pick_bot = np.absolute(np.concatenate((tmp_consistencypickbot, consistency_pick_bot)))
 consistency_pick_regular = np.absolute(np.round(np.random.normal(2500, 800, QTD_REGULAR)))
 
 '''
