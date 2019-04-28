@@ -21,9 +21,9 @@ class AntibotDataset:
         ))
 
         healing = self.shuffle_and_concatenate((
-            self.reaction_to_heal(),
-            self.avg_reaction_time_to_heal(),
-            self.delta_reaction_time_to_heal(),
+            self.heal_threshold(),
+            self.avg_time_to_start_healing(),
+            self.delta_time_to_start_healing(),
         ))
 
         kills = self.shuffle_and_concatenate((
@@ -31,7 +31,7 @@ class AntibotDataset:
         ))
 
         food = self.shuffle_and_concatenate((
-            self.hungry(),
+            self.hungry_time(),
         ))
 
         self.data = np.column_stack((collection, healing, kills, food))
@@ -117,7 +117,7 @@ class AntibotDataset:
         return (np.concatenate((some_bots_delta_time, other_bots_delta_time)), players_delta_time)
 
     # Mediana da quantidade de vida antes das curas começarem
-    def reaction_to_heal(self):
+    def heal_threshold(self):
         # Sabemos que metade dos bots possuem um limiar para começar a cura
         some_bots = round(self.bot_players / 2)
 
@@ -147,7 +147,7 @@ class AntibotDataset:
         return (np.concatenate((some_bots_heal, other_bots_heal)), players_heal)
 
     # Tempo médio entre o último dano sofrido e o início da cura
-    def avg_reaction_time_to_heal(self):
+    def avg_time_to_start_healing(self):
         # Sabemos que metade dos bots começam a se curar assim que sofrem dano
         some_bots = round(self.bot_players / 2)
         some_bots_reaction_time = dist.positive(
@@ -170,7 +170,7 @@ class AntibotDataset:
         return (np.concatenate((some_bots_reaction_time, other_bots_reaction_time)), players_reaction_time)
 
     # Mediana das diferenças entre os tempos de último dano sofrido e início da cura
-    def delta_reaction_time_to_heal(self):
+    def delta_time_to_start_healing(self):
         # Sabemos que metade dos bots sempre começam a se curar assim que sofrem dano
         some_bots = round(self.bot_players / 2)
         some_bots_delta_time = dist.positive(
@@ -206,7 +206,7 @@ class AntibotDataset:
         return (np.concatenate((some_bots_kills, other_bots_kills)), players_kills)
 
     # Tempo total sentindo fome
-    def hungry(self):
+    def hungry_time(self):
         # Sabemos que metade dos bots alimenta o personagem frequentemente
         some_bots = round(self.bot_players / 2)
         some_bots_hungry_time = dist.positive(
