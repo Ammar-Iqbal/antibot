@@ -32,7 +32,7 @@ def load_antibot():
     'isbot']
     
   # Lendo todos os dados
-  ds = pd.read_csv('antibot2.data', sep=',', header=None, names=cols)
+  ds = pd.read_csv('antibot.data', sep=',', header=None, names=cols)
   
   # Atributos em X
   X = ds.iloc[:, :-1]
