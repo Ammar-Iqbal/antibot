@@ -6,26 +6,46 @@ class AntibotDataset:
     def __init__(self, total_players, bot_rate, seed=None):
         self.total_players = total_players
         self.bot_rate = bot_rate
+        self.bot_players = round(self.total_players * self.bot_rate)
+        self.real_players = self.total_players - self.bot_players
         np.random.seed(seed)
 
-    def generate(self):
-        # Quantidade de jogadores bot na amostra
-        self.bot_players = round(self.total_players * self.bot_rate)
-        # Quantidade de jogadores reais na amostra
-        self.real_players = self.total_players - self.bot_players
+    def join(self, result):
+        pos_sample = tuple([t[0] for t in result])
+        neg_sample = tuple([t[1] for t in result])
 
-        columns = (
+        pos_group = np.random.permutation(np.column_stack(pos_sample))
+        neg_group = np.column_stack(neg_sample)
+
+        return np.concatenate((pos_group, neg_group))
+
+    def generate(self):
+        group1 = self.join((
             self.collected_items(),
             self.avg_time_to_collect_item(),
             self.delta_time_to_collect_item(),
+        ))
+
+        group2 = self.join((
             self.reaction_to_heal(),
             self.avg_reaction_time_to_heal(),
             self.delta_reaction_time_to_heal(),
-            self.killed_enemies(),
-            self.hungry()
-        )
+        ))
 
-        self.data = np.column_stack(columns)
+        group3 = self.join((
+            self.killed_enemies(),
+        ))
+
+        group4 = self.join((
+            self.hungry(),
+        ))
+
+        self.data = np.column_stack((
+            group1,
+            group2,
+            group3,
+            group4
+        ))
         self.target = np.concatenate((
             np.array([1] * self.bot_players),
             np.array([0] * self.real_players)
@@ -41,62 +61,62 @@ class AntibotDataset:
 
     # Total de itens coletados
     def collected_items(self):
-        # Sabemos que metade dos bots coletam os itens que veem pela frente
+        # Sabemos que metade dos trapaceiros coletam itens automaticamente
         some_bots = round(self.bot_players / 2)
         some_bots_items = dist.positive(
             np.random.normal, (20, 4, some_bots)).round()
 
-        # Enquanto a outra metade dos bots é mais seletiva
+        # Enquanto a outra metade dos trapaceiros não utiliza o recurso
         other_bots = self.bot_players - some_bots
         other_bots_items = dist.positive(
             np.random.normal, (8, 4, other_bots)).round()
 
-        # Assim como os jogadores reais
+        # Assim como os jogadores justos
         players_items = dist.positive(
             np.random.normal, (8, 4, self.real_players)).round()
 
-        return np.concatenate((some_bots_items, other_bots_items, players_items))
+        return (np.concatenate((some_bots_items, other_bots_items)), players_items)
 
     # Tempo médio entre um item aparecer no cenário e ser coletado
     def avg_time_to_collect_item(self):
-        # Sabemos que metade dos bots coletam os itens assim que eles aparecem
+        # Sabemos que metade dos trapaceiros coletam itens automaticamente assim que aparecem no cenário
         some_bots = round(self.bot_players / 2)
         some_bots_reaction_time = dist.positive(
             np.random.normal, (600, 50, some_bots)).round()
 
         # E metade desses bots utilizam algum atraso fixo para reagir
-        some_bots_half = round(some_bots / 2)
-        some_bots_reaction_time[-some_bots_half:] += np.random.uniform(
-            1, 10, some_bots_half).round() * 100
+        half_some_bots = round(some_bots / 2)
+        some_bots_reaction_time[half_some_bots:] += np.random.uniform(
+            1, 10, half_some_bots).round() * 100
 
-        # Enquanto a outra metade dos bots é mais realista
+        # Enquanto a outra metade dos trapaceiros não utiliza o recurso
         other_bots = self.bot_players - some_bots
         other_bots_reaction_time = dist.positive(
             np.random.normal, (1500, 250, other_bots)).round()
 
-        # Parecida com os jogadores reais
+        # Assim como os jogadores justos
         players_reaction_time = dist.positive(
             np.random.normal, (1500, 250, self.real_players)).round()
 
-        return np.concatenate((some_bots_reaction_time, other_bots_reaction_time, players_reaction_time))
+        return (np.concatenate((some_bots_reaction_time, other_bots_reaction_time)), players_reaction_time)
 
     # Mediana das diferenças entre os tempos de coleta
     def delta_time_to_collect_item(self):
-        # Sabemos que metade dos bots sempre coletam itens assim que eles aparecem
+        # Sabemos que metade dos trapaceiros coletam itens automaticamente sempre que aparecem no cenário
         some_bots = round(self.bot_players / 2)
         some_bots_delta_time = dist.positive(
             np.random.normal, (100, 25, some_bots)).round()
 
-        # Enquanto a outra metade é mais realista
+        # Enquanto a outra metade dos trapaceiros não utiliza o recurso
         other_bots = self.bot_players - some_bots
         other_bots_delta_time = dist.positive(
             np.random.normal, (2500, 800, other_bots)).round()
 
-        # Parecida com os jogadores reais
+        # Assim como os jogadores justos
         players_delta_time = dist.positive(
             np.random.normal, (2500, 800, self.real_players)).round()
 
-        return np.concatenate((some_bots_delta_time, other_bots_delta_time, players_delta_time))
+        return (np.concatenate((some_bots_delta_time, other_bots_delta_time)), players_delta_time)
 
     # Mediana da quantidade de vida antes das curas começarem
     def reaction_to_heal(self):
@@ -126,7 +146,7 @@ class AntibotDataset:
         players_heal = dist.positive(
             np.random.normal, (50, 8, self.real_players)).round()
 
-        return np.concatenate((some_bots_heal, other_bots_heal, players_heal))
+        return (np.concatenate((some_bots_heal, other_bots_heal)), players_heal)
 
     # Tempo médio entre o último dano sofrido e o início da cura
     def avg_reaction_time_to_heal(self):
@@ -149,7 +169,7 @@ class AntibotDataset:
         players_reaction_time = dist.positive(
             np.random.normal, (2500, 450, self.real_players)).round()
 
-        return np.concatenate((some_bots_reaction_time, other_bots_reaction_time, players_reaction_time))
+        return (np.concatenate((some_bots_reaction_time, other_bots_reaction_time)), players_reaction_time)
 
     # Mediana das diferenças entre os tempos de último dano sofrido e início da cura
     def delta_reaction_time_to_heal(self):
@@ -167,7 +187,7 @@ class AntibotDataset:
         players_delta_time = dist.positive(
             np.random.normal, (1500, 300, self.real_players)).round()
 
-        return np.concatenate((some_bots_delta_time, other_bots_delta_time, players_delta_time))
+        return (np.concatenate((some_bots_delta_time, other_bots_delta_time)), players_delta_time)
 
     # Total de inimigos mortos
     def killed_enemies(self):
@@ -185,7 +205,7 @@ class AntibotDataset:
         players_kills = dist.positive(
             np.random.normal, (12, 8, self.real_players)).round()
 
-        return np.concatenate((some_bots_kills, other_bots_kills, players_kills))
+        return (np.concatenate((some_bots_kills, other_bots_kills)), players_kills)
 
     # Tempo total sentindo fome
     def hungry(self):
@@ -196,10 +216,10 @@ class AntibotDataset:
 
         # Enquanto a outra metade alimenta o personagem aleatoriamente
         other_bots = self.bot_players - some_bots
-        other_bots_hungry_time = np.random.uniform(30, 300, some_bots).round()
+        other_bots_hungry_time = np.random.uniform(30, 300, other_bots).round()
 
         # Assim como os jogadores reais que esquecem da tarefa
         players_hungry_time = np.random.uniform(
             30, 300, self.real_players).round()
 
-        return np.concatenate((some_bots_hungry_time, other_bots_hungry_time, players_hungry_time))
+        return (np.concatenate((some_bots_hungry_time, other_bots_hungry_time)), players_hungry_time)
