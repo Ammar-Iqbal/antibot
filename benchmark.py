@@ -12,7 +12,6 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 import pandas as pd
-import comparison as comp
 import visualization as visual
 import time
 
@@ -106,7 +105,6 @@ for ds_name, X, y in datasets:
     # Retornando resultados
     print("[%s] = taxa de acerto: %.2f%% +- %.2f%%, roc_auc: %.2f%% +- %.2f%% (%.3f (s))" % (clf_name, scores_acc.mean() * 100, scores_acc.std() * 100, scores_roc.mean() * 100, scores_roc.std() * 100, tempo_total))
 np.savetxt("best_params", bestparams, fmt='%s', delimiter=",")
-comp.load_data(data)
 
 visual.load_data(data)
 visual.to_csv('benchmark.csv')
