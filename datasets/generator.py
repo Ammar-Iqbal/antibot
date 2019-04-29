@@ -128,9 +128,8 @@ class AntibotDataset:
         other_bots_heal_threshold = dist.positive(
             np.random.normal, (20, 2, other_bots)).round()
 
-        # Ao passo que os jogadores justos variam em torno de meia vida
-        players_heal_threshold = dist.positive(
-            np.random.normal, (50, 8, self.fair_players)).round()
+        # Ao passo que os jogadores justos são imprevisíveis
+        players_heal_threshold = np.random.uniform(10, 95,  self.fair_players).round()
 
         return (np.concatenate((some_bots_heal_threshold, other_bots_heal_threshold)), players_heal_threshold)
 
