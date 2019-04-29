@@ -52,8 +52,6 @@ gaussian_nb_params = {}
 decision_tree_params = {}
 random_forest_params = {'randomforestclassifier__n_estimators': [
     1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]}
-logistic_regression_params = {
-    'logisticregress__C': [0.001, 0.01, 0.1, 1, 10, 100]}
 linear_svc_params = {'linearsvc__C': np.linspace(0.5, 5., 10)}
 knn_params = {'kneighborsclassifier__n_neighbors': [
     1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]}
