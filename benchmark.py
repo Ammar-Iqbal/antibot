@@ -7,7 +7,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn import tree
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import Perceptron
-from sklearn.neural_network import MLPClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from datasets.generator import AntibotDataset
@@ -46,8 +45,6 @@ datasets.append(load_antibot())
 
 # Configurando os parâmetros dos classificadores
 perceptron_params = {'perceptron__tol': [0.0001, 0.001, 0.01]}
-mlp_params = {'mlp__hidden_layer_sizes': [(50, 50, 50), (50, 100, 50), (100,)], 'mlp__activation': [
-    'tanh', 'relu'], 'mlp__alpha': [0.0001, 0.05], 'mlp__learning_rate': ['constant', 'adaptive'], }
 gaussian_nb_params = {}
 decision_tree_params = {}
 random_forest_params = {'randomforestclassifier__n_estimators': [
