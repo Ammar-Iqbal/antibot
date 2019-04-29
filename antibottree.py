@@ -4,7 +4,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_validate
 
-from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn.metrics import classification_report
 
 import pandas as pd
@@ -54,7 +54,8 @@ skf = StratifiedKFold(10)
 skf.split(X, y)
 
 # Estimator
-estimator = SVC(C=3.0, degree=2, gamma='scale', kernel='poly')
+estimator = DecisionTreeClassifier(
+    criterion='gini', min_samples_leaf=3, min_samples_split=2, splitter='best')
 
 scoring = {
     'accuracy': 'accuracy',
@@ -66,7 +67,7 @@ scoring = {
 scores = cross_validate(make_pipeline(MinMaxScaler(), estimator), X, y,
                         cv=skf, scoring=scoring, return_train_score=False)
 
-print("SVC(C=3.0, degree=2, gamma='scale', kernel='poly')")
+print("DecisionTreeClassifier(criterion='gini', min_samples_leaf=3, min_samples_split=2, splitter='best')")
 print("    accuracy: %.3f +/- %.3f" %
       (scores['test_accuracy'].mean(), scores['test_accuracy'].std()))
 print("    precision: %.3f +/- %.3f" %
@@ -92,10 +93,5 @@ predictions = estimator.predict(scaler.transform(X_t))
 # Print report
 print(classification_report(y_t, predictions))
 
-print("Indices of support vectors")
-print(estimator.support_)
-print()
-
-print("Number of support vectors for each class")
-print(estimator.n_support_)
-print()
+# Print tree graph
+export_graphviz(estimator, out_file='decisiontreeclassifier.dot')

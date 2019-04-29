@@ -1,7 +1,7 @@
 from datasets.generator import AntibotDataset
 
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_validate
 
 from sklearn.tree import DecisionTreeClassifier
@@ -11,8 +11,6 @@ from sklearn.ensemble import RandomForestClassifier
 
 import numpy as np
 import pandas as pd
-import visualization as visual
-import time
 
 
 def load_antibot():
@@ -95,7 +93,7 @@ for ds_name, X, y in datasets:
 
     for clf_name, params, pipe in pipes:
         best_attempt = GridSearchCV(pipe, params, cv=skf).fit(X, y)
-        
+
         best_params = best_attempt.best_params_
         bestparams.append(best_params)
         pipe.set_params(**best_params)
@@ -107,16 +105,22 @@ for ds_name, X, y in datasets:
             'recall': 'recall',
             'roc_auc': 'roc_auc'
         }
-        scores = cross_validate(pipe, X, y, cv=skf, scoring=scoring, return_train_score=False)
+        scores = cross_validate(
+            pipe, X, y, cv=skf, scoring=scoring, return_train_score=False)
 
         print(clf_name)
-        print("    accuracy: %.3f +/- %.3f" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std()))
-        print("    precision: %.3f +/- %.3f" % (scores['test_precision'].mean(), scores['test_precision'].std()))
-        print("    f1: %.3f +/- %.3f" % (scores['test_f1'].mean(), scores['test_f1'].std()))
-        print("    recall: %.3f +/- %.3f" % (scores['test_recall'].mean(), scores['test_recall'].std()))
-        print("    roc_auc: %.3f +/- %.3f" % (scores['test_roc_auc'].mean(), scores['test_roc_auc'].std()))
+        print("    accuracy: %.3f +/- %.3f" %
+              (scores['test_accuracy'].mean(), scores['test_accuracy'].std()))
+        print("    precision: %.3f +/- %.3f" %
+              (scores['test_precision'].mean(), scores['test_precision'].std()))
+        print("    f1: %.3f +/- %.3f" %
+              (scores['test_f1'].mean(), scores['test_f1'].std()))
+        print("    recall: %.3f +/- %.3f" %
+              (scores['test_recall'].mean(), scores['test_recall'].std()))
+        print("    roc_auc: %.3f +/- %.3f" %
+              (scores['test_roc_auc'].mean(), scores['test_roc_auc'].std()))
         print()
-        
+
         data.setdefault(clf_name, {})[ds_name] = scores
 
 np.savetxt("best_params", bestparams, fmt='%s', delimiter=",")
