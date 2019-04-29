@@ -36,8 +36,11 @@ def load_antibot():
     y = ds.iloc[:, -1]
 
     return ('antibot', X, y)
-
+    
+# Treino
 AntibotDataset(1000, 0.2, 255).generate().export_csv("antibot.data")
+# Teste
+AntibotDataset(500, 0.2, 42).generate().export_csv("antibot2.data")
 
 # Para facilitar caso queira analisar múltiplos datasets
 datasets = []
